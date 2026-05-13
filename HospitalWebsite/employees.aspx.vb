@@ -6,30 +6,36 @@ Partial Class employees
     Inherits System.Web.UI.Page
 
     Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+        If Session("User") IsNot Nothing Then
+            btnLogout.Visible = True
+            If Session("Role") = "admin" Then
+                phAdminLinks.Visible = True
+            End If
+        End If
+
         If Not IsPostBack Then
             LoadEmployees()
             LoadDropdowns()
         End If
     End Sub
 
+    Protected Sub btnLogout_Click(sender As Object, e As EventArgs)
+        Session.Abandon()
+        Response.Redirect("login.aspx")
+    End Sub
+
     Private Sub LoadEmployees()
         Dim connStr As String = ConfigurationManager.ConnectionStrings("HospitalDB").ConnectionString
         Dim conn As New SqlConnection(connStr)
         Try
-            Dim query As String = "SELECT e.emp_id, e.emp_name, d.dept_name, des.designation_name, e.date_of_birth " & _
-                                 "FROM Employees e " & _
-                                 "JOIN Departments d ON e.dept_id = d.dept_id " & _
-                                 "JOIN Designations des ON e.designation_id = des.designation_id"
-            Dim cmd As New SqlCommand(query, conn)
-            Dim da As New SqlDataAdapter(cmd)
+            Dim query As String = "SELECT e.emp_id, e.emp_name, d.dept_name, des.designation_name, e.date_of_birth FROM Employees e JOIN Departments d ON e.dept_id = d.dept_id JOIN Designations des ON e.designation_id = des.designation_id"
+            Dim da As New SqlDataAdapter(query, conn)
             Dim dt As New DataTable()
             da.Fill(dt)
             repEmployees.DataSource = dt
             repEmployees.DataBind()
         Catch ex As Exception
-            lblMsg.Text = "Error loading employees: " & ex.Message
-        Finally
-            conn.Close()
+            lblMsg.Text = "Error: " & ex.Message
         End Try
     End Sub
 
@@ -38,7 +44,6 @@ Partial Class employees
         Dim conn As New SqlConnection(connStr)
         Try
             conn.Open()
-            ' Load Departments
             Dim cmdDept As New SqlCommand("SELECT dept_id, dept_name FROM Departments", conn)
             ddlDepts.DataSource = cmdDept.ExecuteReader()
             ddlDepts.DataTextField = "dept_name"
@@ -46,7 +51,6 @@ Partial Class employees
             ddlDepts.DataBind()
             conn.Close()
 
-            ' Load Designations
             conn.Open()
             Dim cmdDes As New SqlCommand("SELECT designation_id, designation_name FROM Designations", conn)
             ddlDesignations.DataSource = cmdDes.ExecuteReader()
@@ -54,7 +58,7 @@ Partial Class employees
             ddlDesignations.DataValueField = "designation_id"
             ddlDesignations.DataBind()
         Catch ex As Exception
-            lblMsg.Text = "Error loading dropdowns: " & ex.Message
+            lblMsg.Text = "Error: " & ex.Message
         Finally
             conn.Close()
         End Try
@@ -70,15 +74,12 @@ Partial Class employees
             cmd.Parameters.AddWithValue("@des", ddlDesignations.SelectedValue)
             cmd.Parameters.AddWithValue("@name", txtEmpName.Text)
             cmd.Parameters.AddWithValue("@dob", txtDOB.Text)
-            
             conn.Open()
             cmd.ExecuteNonQuery()
-            lblMsg.Text = "Employee added successfully!"
-            lblMsg.ForeColor = System.Drawing.Color.Green
-            LoadEmployees() ' Refresh list
+            lblMsg.Text = "Success!"
+            LoadEmployees()
         Catch ex As Exception
-            lblMsg.Text = "Error adding employee: " & ex.Message
-            lblMsg.ForeColor = System.Drawing.Color.Red
+            lblMsg.Text = "Error: " & ex.Message
         Finally
             conn.Close()
         End Try

@@ -13,16 +13,22 @@
                 <p>Book Your Appointment</p>
             </header>
 
-            <nav>
-                <ul>
-                    <li><a href="homePage.aspx">Home</a></li>
-                    <li><a href="departments.aspx">Departments</a></li>
-                    <li><a href="employees.aspx">Our Doctors</a></li>
-                    <li><a href="Appointments.aspx">Book Appointment</a></li>
-                    <li><a href="pat_reg.aspx">Register</a></li>
-                    <li><a href="login.aspx">Staff Login</a></li>
-                    <li><a href="help.aspx">Help</a></li>
-                </ul>
+            <nav style="background-color: #f0f0f0; padding: 10px; margin-bottom: 20px; overflow: hidden;">
+                <div style="float: left;">
+                    <a href="homePage.aspx">Home</a> | 
+                    <a href="departments.aspx">Departments</a> | 
+                    <a href="employees.aspx">Our Doctors</a> | 
+                    <a href="Appointments.aspx">Book Appointment</a> | 
+                    <a href="pat_reg.aspx">Register</a> | 
+                    <a href="login.aspx">Staff Login</a> | 
+                    <a href="help.aspx">Help</a>
+                    <asp:PlaceHolder ID="phAdminLinks" runat="server" Visible="false">
+                        | <a href="manage_users.aspx">Manage Users</a>
+                    </asp:PlaceHolder>
+                </div>
+                <div style="float: right;">
+                    <asp:LinkButton ID="btnLogout" runat="server" OnClick="btnLogout_Click" Visible="false" ForeColor="Red">Logout</asp:LinkButton>
+                </div>
             </nav>
 
             <div class="main_container">
@@ -31,25 +37,30 @@
                     <div class="form-group">
                         <label>Patient:</label>
                         <asp:DropDownList ID="ddlPatients" runat="server"></asp:DropDownList>
+                        <asp:RequiredFieldValidator ID="rfvPat" runat="server" ControlToValidate="ddlPatients" 
+                            InitialValue="" ErrorMessage="*" ForeColor="Red"></asp:RequiredFieldValidator>
                     </div>
                     <div class="form-group">
                         <label>Doctor:</label>
                         <asp:DropDownList ID="ddlDoctors" runat="server"></asp:DropDownList>
+                        <asp:RequiredFieldValidator ID="rfvDoc" runat="server" ControlToValidate="ddlDoctors" 
+                            InitialValue="" ErrorMessage="*" ForeColor="Red"></asp:RequiredFieldValidator>
                     </div>
                     <div class="form-group">
-                        <label>Appointment Date & Time (YYYY-MM-DD HH:MM):</label>
+                        <label>Date:</label>
                         <asp:TextBox ID="txtDate" runat="server"></asp:TextBox>
+                        <asp:RequiredFieldValidator ID="rfvDate" runat="server" ControlToValidate="txtDate" 
+                            ErrorMessage="*" ForeColor="Red"></asp:RequiredFieldValidator>
                     </div>
                     <div class="form-group">
-                        <label>Reason / Diagnosis:</label>
+                        <label>Diagnosis:</label>
                         <asp:TextBox ID="txtDiagnosis" runat="server"></asp:TextBox>
+                        <asp:RequiredFieldValidator ID="rfvDiag" runat="server" ControlToValidate="txtDiagnosis" 
+                            ErrorMessage="*" ForeColor="Red"></asp:RequiredFieldValidator>
                     </div>
-                    
                     <asp:Button ID="btnBook" runat="server" Text="Book Appointment" OnClick="btnBook_Click" />
-                    <br />
-                    <asp:Label ID="lblMsg" runat="server"></asp:Label>
+                    <br /><asp:Label ID="lblMsg" runat="server"></asp:Label>
                 </div>
-
                 <hr />
                 <h2>Upcoming Appointments</h2>
                 <asp:GridView ID="gvAppointments" runat="server" BorderWidth="1"></asp:GridView>

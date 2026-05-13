@@ -6,10 +6,27 @@ Partial Class pat_reg
     Inherits System.Web.UI.Page
 
     Protected Sub Page_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
-        if Not IsPostBack Then
+        ' Security: Check if user is logged in
+        If Session("User") Is Nothing Then
+            Response.Redirect("login.aspx")
+        End If
+
+        If Session("User") IsNot Nothing Then
+            btnLogout.Visible = True
+            If Session("Role") = "admin" Then
+                phAdminLinks.Visible = True
+            End If
+        End If
+
+        If Not IsPostBack Then
             LoadEmployees()
             LoadPatients()
         End If
+    End Sub
+
+    Protected Sub btnLogout_Click(sender As Object, e As EventArgs)
+        Session.Abandon()
+        Response.Redirect("login.aspx")
     End Sub
 
     Private Sub LoadEmployees()
@@ -34,9 +51,7 @@ Partial Class pat_reg
         Dim connStr As String = ConfigurationManager.ConnectionStrings("HospitalDB").ConnectionString
         Dim conn As New SqlConnection(connStr)
         Try
-            Dim query As String = "SELECT p.patient_id, p.p_name, p.date_of_birth, e.emp_name as Registered_By " & _
-                                 "FROM Patients p " & _
-                                 "LEFT JOIN Employees e ON p.registered_by = e.emp_id"
+            Dim query As String = "SELECT p.patient_id, p.p_name, p.date_of_birth, e.emp_name as Registered_By FROM Patients p LEFT JOIN Employees e ON p.registered_by = e.emp_id"
             Dim da As New SqlDataAdapter(query, conn)
             Dim dt As New DataTable()
             da.Fill(dt)
@@ -44,12 +59,13 @@ Partial Class pat_reg
             gvPatients.DataBind()
         Catch ex As Exception
             lblMsg.Text = "Error: " & ex.Message
-        Finally
-            conn.Close()
         End Try
     End Sub
 
     Protected Sub btnRegister_Click(sender As Object, e As EventArgs)
+        ' Server-side validation check
+        If Not Page.IsValid Then Return
+
         Dim connStr As String = ConfigurationManager.ConnectionStrings("HospitalDB").ConnectionString
         Dim conn As New SqlConnection(connStr)
         Try
@@ -57,21 +73,14 @@ Partial Class pat_reg
             Dim cmd As New SqlCommand(query, conn)
             cmd.Parameters.AddWithValue("@name", txtPatientName.Text)
             cmd.Parameters.AddWithValue("@dob", txtDOB.Text)
-            
-            If ddlEmployees.SelectedValue <> "" Then
-                cmd.Parameters.AddWithValue("@regBy", ddlEmployees.SelectedValue)
-            Else
-                cmd.Parameters.AddWithValue("@regBy", DBNull.Value)
-            End If
+            cmd.Parameters.AddWithValue("@regBy", ddlEmployees.SelectedValue)
             
             conn.Open()
             cmd.ExecuteNonQuery()
-            lblMsg.Text = "Patient registered successfully!"
-            lblMsg.ForeColor = System.Drawing.Color.Green
+            lblMsg.Text = "Success!"
             LoadPatients()
         Catch ex As Exception
-            lblMsg.Text = "Error registering patient: " & ex.Message
-            lblMsg.ForeColor = System.Drawing.Color.Red
+            lblMsg.Text = "Error: " & ex.Message
         Finally
             conn.Close()
         End Try

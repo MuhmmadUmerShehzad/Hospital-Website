@@ -13,21 +13,26 @@
                 <p>Our Departments</p>
             </header>
 
-            <nav>
-                <ul>
-                    <li><a href="homePage.aspx">Home</a></li>
-                    <li><a href="departments.aspx">Departments</a></li>
-                    <li><a href="employees.aspx">Our Doctors</a></li>
-                    <li><a href="Appointments.aspx">Book Appointment</a></li>
-                    <li><a href="pat_reg.aspx">Register</a></li>
-                    <li><a href="login.aspx">Staff Login</a></li>
-                    <li><a href="help.aspx">Help</a></li>
-                </ul>
+            <nav style="background-color: #f0f0f0; padding: 10px; margin-bottom: 20px; overflow: hidden;">
+                <div style="float: left;">
+                    <a href="homePage.aspx">Home</a> | 
+                    <a href="departments.aspx">Departments</a> | 
+                    <a href="employees.aspx">Our Doctors</a> | 
+                    <a href="Appointments.aspx">Book Appointment</a> | 
+                    <a href="pat_reg.aspx">Register</a> | 
+                    <a href="login.aspx">Staff Login</a> | 
+                    <a href="help.aspx">Help</a>
+                    <asp:PlaceHolder ID="phAdminLinks" runat="server" Visible="false">
+                        | <a href="manage_users.aspx">Manage Users</a>
+                    </asp:PlaceHolder>
+                </div>
+                <div style="float: right;">
+                    <asp:LinkButton ID="btnLogout" runat="server" OnClick="btnLogout_Click" Visible="false" ForeColor="Red">Logout</asp:LinkButton>
+                </div>
             </nav>
 
             <div class="main_container">
                 <h2>Hospital Departments</h2>
-
                 <asp:GridView ID="gvDepartments" runat="server" AutoGenerateColumns="False" BorderWidth="1">
                     <Columns>
                         <asp:BoundField DataField="dept_id" HeaderText="Dept ID" />
@@ -35,7 +40,6 @@
                         <asp:BoundField DataField="emp_name" HeaderText="Head of Department" />
                     </Columns>
                 </asp:GridView>
-
                 <br />
                 <asp:Label ID="lblError" runat="server" ForeColor="Red"></asp:Label>
             </div>
