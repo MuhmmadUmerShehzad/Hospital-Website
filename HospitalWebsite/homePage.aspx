@@ -34,6 +34,7 @@
             <div class="main_container">
                 <div class="homeBox">
                     <h2>Welcome to our Hospital</h2>
+                    <p><asp:Label ID="lblWelcome" runat="server" Font-Bold="true" ForeColor="Green"></asp:Label></p>
                     <p>Providing Quality Healthcare Services with Compassion and Excellence</p>
                 </div>
 

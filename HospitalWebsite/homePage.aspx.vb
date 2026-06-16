@@ -10,6 +10,9 @@ Partial Class homePage
                 phAdminLinks.Visible = True
             End If
         End If
+        If Request.QueryString("user") IsNot Nothing AndAlso Request.QueryString("login") = "success" Then
+            lblWelcome.Text = "Login successful! Welcome back, " & Server.HtmlEncode(Request.QueryString("user")) & "."
+        End If
     End Sub
 
     Protected Sub btnLogout_Click(sender As Object, e As EventArgs)

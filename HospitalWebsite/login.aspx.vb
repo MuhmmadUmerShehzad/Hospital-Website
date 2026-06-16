@@ -22,7 +22,7 @@ Partial Class login
             If role IsNot Nothing Then
                 Session("User") = txtUsername.Text
                 Session("Role") = role.ToString()
-                Response.Redirect("homePage.aspx")
+                Response.Redirect("homePage.aspx?login=success&user=" & Server.UrlEncode(txtUsername.Text))
             Else
                 lblMessage.Text = "Invalid username or password."
             End If

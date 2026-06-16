@@ -189,59 +189,96 @@ INSERT INTO Departments (dept_name)
 VALUES 
 ('Cardiology'),
 ('Radiology'),
-('Emergency');
+('Emergency'),
+('Pediatrics'),
+('Oncology'),
+('Neurology');
 
 INSERT INTO Designations (designation_name)
 VALUES 
 ('Doctor'),
 ('Nurse'),
 ('Receptionist'),
-('Technician');
+('Technician'),
+('Pharmacist'),
+('Administrator');
 
 INSERT INTO Employees (dept_id, designation_id, emp_name, date_of_birth)
 VALUES 
 (1, 1, 'Dr. Ali Ahmed', '1985-06-15'),
 (2, 4, 'Umer Shehzad', '1998-03-22'),
-(3, 3, 'Sara Khan', '2000-11-10');
+(3, 3, 'Sara Khan', '2000-11-10'),
+(4, 1, 'Dr. Sarah Connor', '1975-10-02'),
+(5, 1, 'Dr. Bruce Banner', '1980-12-18'),
+(1, 2, 'Nurse Joy', '1995-08-20'),
+(3, 3, 'John Doe', '1990-01-01');
 
 UPDATE Departments
 SET HOD_emp_id = 1
 WHERE dept_id = 1;
 
+UPDATE Departments
+SET HOD_emp_id = 4
+WHERE dept_id = 4;
+
+UPDATE Departments
+SET HOD_emp_id = 5
+WHERE dept_id = 5;
+
 INSERT INTO Patients (p_name, date_of_birth, registered_by)
 VALUES 
 ('Ali Raza', '2002-09-12', 3),
-('Hassan Ali', '1995-04-18', 3);
+('Hassan Ali', '1995-04-18', 3),
+('Jane Watson', '1988-11-30', 3),
+('Peter Parker', '2001-05-15', 7),
+('Clark Kent', '1979-02-28', 3);
 
 INSERT INTO Visits (patient_id, doctor_id, diagnosis)
 VALUES 
 (1, 1, 'Flu and fever'),
-(2, 1, 'Chest pain observation');
+(2, 1, 'Chest pain observation'),
+(3, 4, 'Common Cold checkup'),
+(4, 5, 'Oncology routine checkup'),
+(5, 1, 'Arrhythmia review');
     
 INSERT INTO Medicines (med_name)
 VALUES 
 ('Paracetamol'),
 ('Amoxicillin'),
-('Ibuprofen');
+('Ibuprofen'),
+('Loratadine'),
+('Atorvastatin'),
+('Metformin');
 
 INSERT INTO Prescriptions (visit_id, prescribed_by)
 VALUES 
 (1, 1),
-(2, 1);
+(2, 1),
+(3, 4),
+(4, 5),
+(5, 1);
 
 INSERT INTO Prescription_Details (presc_id, med_id, dosage, duration)
 VALUES 
 (1, 1, '500mg', '3 days'),
 (1, 3, '200mg', '5 days'),
-(2, 2, '250mg', '7 days');
+(2, 2, '250mg', '7 days'),
+(3, 4, '10mg', '10 days'),
+(4, 5, '20mg', '30 days'),
+(5, 1, '500mg', '15 days');
 
 INSERT INTO Equipment (eq_name, dept_id, status, purchase_date)
 VALUES 
 ('ECG Machine', 1, 'Available', '2023-01-10'),
-('X-Ray Machine', 2, 'In Use', '2022-05-20');
+('X-Ray Machine', 2, 'In Use', '2022-05-20'),
+('Ventilator', 3, 'Available', '2024-03-12'),
+('MRI Scanner', 2, 'Maintenance', '2021-08-05'),
+('Infusion Pump', 4, 'Available', '2023-11-22');
 
 INSERT INTO Users (username, User_password, emp_id, role_name)
 VALUES 
 ('admin', 'admin', NULL, 'admin'),
 ('umer', '123', 2, 'employee'),
-('Ali', '123', NULL, 'patient');
+('Ali', '123', NULL, 'patient'),
+('sarah', 'password123', 4, 'employee'),
+('bruce', 'gammaRay', 5, 'employee');

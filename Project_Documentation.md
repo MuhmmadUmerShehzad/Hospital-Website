@@ -130,14 +130,169 @@ classDiagram
 ### Task 4: Database Model
 
 #### 1. ER Model (Entity-Relationship)
-- **Entities**: Users, Employees, Patients, Visits, Departments, Designations.
-- **Key Relationships**:
-    - **Departments to Employees**: 1-to-Many (One department has multiple staff).
-    - **Employees to Visits**: 1-to-Many (One doctor treats multiple visits).
-    - **Patients to Visits**: 1-to-Many (One patient attends multiple visits).
-    - **Users to Employees**: 1-to-1 Optional (A user account can be linked to an employee).
+Below is the comprehensive Entity-Relationship (ER) Diagram written in PlantUML code. It covers all 10 relational tables, showing keys (PK/FK), data types, constraints (Check, Default, Unique, Nullability), and exact relationship cardinalities (using Crow's Foot notation).
 
-#### 2. Relational Model (Table Schema)
+```plantuml
+@startuml HospitalDB_ER_Diagram
+
+!theme plain
+skinparam linetype ortho
+skinparam roundcorner 8
+skinparam shadowing false
+skinparam handwritten false
+
+' Colors and Styling Customization (Premium Palette)
+skinparam class {
+    BackgroundColor #FDFEFE
+    ArrowColor #2C3E50
+    BorderColor #2C3E50
+    FontColor #2C3E50
+    FontSize 12
+    HeaderBackgroundColor #2C3E50
+    HeaderFontColor #FFFFFF
+    HeaderFontSize 14
+}
+
+' Hide internal circles
+hide circle
+
+' ==========================================================
+' ENTITIES & ATTRIBUTES DEFINITION
+' ==========================================================
+
+entity "Departments" as Departments {
+    * **dept_id** : INT <<PK, IDENTITY>>
+    --
+    * **dept_name** : VARCHAR(50) <<UNIQUE, NOT NULL>>
+    HOD_emp_id : INT <<FK, NULLABLE>>
+}
+
+entity "Designations" as Designations {
+    * **designation_id** : INT <<PK, IDENTITY>>
+    --
+    * **designation_name** : VARCHAR(50) <<UNIQUE, NOT NULL>>
+}
+
+entity "Employees" as Employees {
+    * **emp_id** : INT <<PK, IDENTITY>>
+    --
+    * **dept_id** : INT <<FK, NOT NULL>>
+    * **designation_id** : INT <<FK, NOT NULL>>
+    * **emp_name** : VARCHAR(50) <<NOT NULL>>
+    * **date_of_birth** : DATE <<NOT NULL, CHECK (DOB < GETDATE())>>
+}
+
+entity "Patients" as Patients {
+    * **patient_id** : INT <<PK, IDENTITY>>
+    --
+    * **p_name** : VARCHAR(50) <<NOT NULL>>
+    date_of_birth : DATE <<CHECK (DOB < GETDATE()), NULLABLE>>
+    registered_by : INT <<FK, NULLABLE>>
+}
+
+entity "Visits" as Visits {
+    * **visit_id** : INT <<PK, IDENTITY>>
+    --
+    * **patient_id** : INT <<FK, NOT NULL>>
+    * **doctor_id** : INT <<FK, NOT NULL>>
+    visit_date : DATETIME <<DEFAULT GETDATE()>>
+    diagnosis : VARCHAR(255) <<NULLABLE>>
+}
+
+entity "Medicines" as Medicines {
+    * **med_id** : INT <<PK, IDENTITY>>
+    --
+    * **med_name** : VARCHAR(100) <<UNIQUE, NOT NULL>>
+}
+
+entity "Prescriptions" as Prescriptions {
+    * **presc_id** : INT <<PK, IDENTITY>>
+    --
+    * **visit_id** : INT <<FK, NOT NULL>>
+    * **prescribed_by** : INT <<FK, NOT NULL>>
+}
+
+' Associative / Weak Entity resolving M:M relationship
+entity "Prescription_Details" as PrescriptionDetails {
+    * **presc_id** : INT <<PK, FK, NOT NULL>>
+    * **med_id** : INT <<PK, FK, NOT NULL>>
+    --
+    dosage : VARCHAR(50) <<NULLABLE>>
+    duration : VARCHAR(50) <<NULLABLE>>
+}
+
+entity "Equipment" as Equipment {
+    * **eq_id** : INT <<PK, IDENTITY>>
+    --
+    * **eq_name** : VARCHAR(100) <<NOT NULL>>
+    * **dept_id** : INT <<FK, NOT NULL>>
+    status : VARCHAR(20) <<DEFAULT 'Available', CHECK>>
+    purchase_date : DATE <<NULLABLE>>
+}
+
+entity "Users" as Users {
+    * **user_id** : INT <<PK, IDENTITY>>
+    --
+    * **username** : VARCHAR(50) <<UNIQUE, NOT NULL>>
+    * **User_password** : VARCHAR(255) <<NOT NULL>>
+    emp_id : INT <<FK, UNIQUE, NULLABLE>>
+    * **role_name** : VARCHAR(50) <<NOT NULL>>
+}
+
+' ==========================================================
+' RELATIONSHIPS & CARDINALITIES (Crow's Foot Notation)
+' ==========================================================
+
+' 1. Departments and Employees
+Departments ||--o{ Employees : "has staff"
+Employees |o--o| Departments : "manages as HOD"
+
+' 2. Designations and Employees
+Designations ||--o{ Employees : "defines job role for"
+
+' 3. Employees (Front Desk / Staff) and Patients
+Employees |o--o{ Patients : "registers"
+
+' 4. Patients and Visits
+Patients ||--o{ Visits : "attends"
+
+' 5. Employees (Doctor) and Visits
+Employees ||--o{ Visits : "conducts diagnosis for"
+
+' 6. Visits and Prescriptions
+Visits ||--o{ Prescriptions : "results in"
+
+' 7. Employees (Doctor) and Prescriptions
+Employees ||--o{ Prescriptions : "authorizes"
+
+' 8. Prescriptions, Medicines, and Prescription_Details (M:M resolution)
+Prescriptions ||--|{ PrescriptionDetails : "contains"
+Medicines ||--o{ PrescriptionDetails : "is listed in"
+
+' 9. Departments and Equipment
+Departments ||--o{ Equipment : "allocates / maintains"
+
+' 10. Employees and Users
+Employees |o--o| Users : "has login account"
+
+@enduml
+```
+
+#### 2. Key Relationships Summary
+The database relationships and their business rules are defined as follows:
+- **Departments to Employees**: A Department has zero or many Employees (`1:N`). An employee must belong to exactly one department.
+- **Employees to Departments (HOD)**: An Employee manages zero or one Department as Head of Department (`1:0..1`).
+- **Designations to Employees**: A Designation defines job roles for zero or many Employees (`1:N`).
+- **Employees (Staff) to Patients**: An Employee registers zero or many Patients (`1:N`, optional).
+- **Patients to Visits**: A Patient attends zero or many Visits (`1:N`).
+- **Employees (Doctor) to Visits**: An Employee (Doctor) conducts zero or many Visits (`1:N`).
+- **Visits to Prescriptions**: A Visit results in zero or many Prescriptions (`1:N`).
+- **Employees (Doctor) to Prescriptions**: An Employee (Doctor) writes zero or many Prescriptions (`1:N`).
+- **Prescriptions & Medicines to PrescriptionDetails**: A Many-to-Many (`M:M`) relationship resolved via the associative weak entity `Prescription_Details`.
+- **Departments to Equipment**: A Department allocates / owns zero or many Equipment (`1:N`).
+- **Employees to Users**: An Employee is optionally assigned zero or one login account (`1:0..1`).
+
+#### 3. Relational Model (Table Schema)
 - `Users` (**user_id**, username, User_password, emp_id, role_name)
 - `Patients` (**patient_id**, p_name, date_of_birth, registered_by)
 - `Employees` (**emp_id**, dept_id, designation_id, emp_name, date_of_birth)
